@@ -1,0 +1,12 @@
+pure code - 
+
+1. Mapping from domain to co-domain is with property based testing
+
+Impore code
+
+
+Given state
+
+When Event/Command/Query
+
+Then Command/Event(aka state change)/State

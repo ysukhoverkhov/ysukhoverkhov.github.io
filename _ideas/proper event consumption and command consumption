@@ -1,0 +1,4 @@
+mark event as consumed onle once you processed it and executed all side effects
+
+mark command consumed right away - it's ok to lose commands.
+

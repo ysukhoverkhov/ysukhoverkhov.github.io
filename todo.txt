@@ -1,3 +1,3 @@
 5. google analytics.
 3. SHould be a section "for business enquires"
-5. Setup atom - https://www.portent.com/blog/copywriting/content-strategy/atom-markdown.htm
+4. Нужен шрифт с засечками
