@@ -1,0 +1,8 @@
+2.1. https://github.com/jody-frankowski/blue-penguin/tree/311a5208c030ea62d85bbca952e31b6775a50c2c
+2.2. https://github.com/mc-buckets/brutalist/tree/de551620221ec3f1958250adfaffbbc81e9b748c
+2.3. https://github.com/textbook/bulrush/tree/19b2fc4d79e7c060218172ae5484a4a216b40921
+2.4. https://github.com/lazycoder-ru/lazystrap/tree/c9358d8184314bddc6a04adc9ddf6dd001d1f8e0
+2.5. https://github.com/fle/pelican-sober/tree/4545828e84f25ee7544193cf96499228dd6221bf - looks like nice, but it's old. check responsiveness.
+2.6. https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3
+4. Good example of bootstrap3 - https://lappland.io/
+
