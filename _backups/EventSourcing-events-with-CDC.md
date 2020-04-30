@@ -47,6 +47,10 @@ Not so "WooHoo" - with this freedome come complications:
 
 **Scope of this article - disciss how to fulfil these three obligations.**
 
+Bonus - what is not your obligations:
+1. Providing downstream services historical events - it's up to them to persist your events and go back in time if they need/want to.
+1. Providing downstream services projections of events aggregation - it's up to them to build and maintain their projections.
+
 # No deviation from SoT
 
 ## Problem
@@ -111,22 +115,38 @@ Commit log is a log of all the changes that are made. It is typically used for d
 
 The Commit Log is the actual source of truth about the state of a DB instance. You can think of the tables as a queryable projection of the log.
 
-Commit log in PostgreSQL called "Write-Ahead log".
+Commit log in PostgreSQL called [Write-Ahead log](https://www.postgresql.org/docs/current/wal-intro.html)
 
-### Exotic ways on persistence layer
+### Message bus as persistence
 
-Check "kafka-journal" for inspirtion (TODO: link).
+There are durable message buses. Kafka may retain messages for days.
+If we treat message bus as SoT storage, then persisting and publication of an event is strictly consystent and atomic, which is even more than we need!
+
+On the other hand Kafka:
+1. is not designed for storing significant amount of data during a long period of time, typical retention time in Kafka - days,
+2. does not provide selective reading of data, thus it's practically useless as operational SoT storage.
+
+So, in practice a hybrid approach is used - we back up a message bus with a "proper" DB for caching and read optimization.
+
+1. Events persisted/published in a message bus,
+1. Events are read from it and persisted in a DB by a utility app,
+1. Service for which this SoT is an operational data, recovers from DB and read up tail (head?), what is already published (step 1), but not yet persisted (step 2) from the message bus.
+1. Consumers read message bus only.
+
+That's complex, but if you have a strict SLA on data publication after persistence, that could be a way to go.
+
+Check [kafka-journal](https://github.com/evolution-gaming/kafka-journal) for inspiration.
 
 ### Application layer
 
-You, for example, can add "event published" flag to metadata of each event in your SoT database And
+For example, you can add "event published" flag to metadata of each event in your SoT database and
 1. initially persist event with the flag set to "false",
 2. publish your event in a message bus once you are sure it's persisted,
 3. set the flag to "true".
 
 On each crash/outage recovery scan the SoT DB and go through steps 2 and 3 for all events with the flag equal to "false". Kinda pain in the ass, but "at least once" guarantie is here.
 
-Other solutions possible, but that's out of scope of the discussion.
+Other application layer solutions possible, but that's out of scope of the discussion.
 
 # No publication until new state persisted
 
@@ -140,14 +160,58 @@ Our downstream services should not be exposed to a fact which is not happened ye
 
 ## Solution
 
-Just do not publish on your own - leave it to Persistence layer with one of approaches above and this obligation fulfilment comes for free.
+If you publish from Persistence layer with one of approaches above, this obligation fulfilment comes for free.
 
-If you push this responsibility to your application - just remember to publish event after you received confirmation from your persistence layer while persisting state modifications and never before.
+If you push this responsibility to your application, then remember to publish event after you received confirmation from your persistence layer while persisting state modifications and never before.
+
 
 # Feet wet, hands dirty
 
-Let's set up PostgreSQL as Event store and leverage its commit log streaming to publish all SoT events to Kafka.
+Let's set up an RDBMS as SoT Event Store and leverage its commit log streaming to publish all SoT events to Kafka.
+
+## Debezium
+
+[Debezium](https://debezium.io/) is an open source distributed platform for change data capture. Start it up, point it at your databases, and your apps can start responding to all of the inserts, updates, and deletes that other apps commit to your databases. Debezium is durable and fast, so your apps can respond quickly and never miss an event, even when things go wrong. As they say.
+
+Debezium is built on top of Apache Kafka and provides Kafka Connect compatible connectors that monitor specific database management systems.
+
+There are Production connectors for MySQL, PostgreSQL, MongoDB. Some others in development.
+
+The project provides tutorial for setting up CDC of MySQL db and streaming the events to Kafka. They provide Docker images with all moving parts preconfigured. [Try it out](https://debezium.io/documentation/reference/1.1/tutorial.html)
+
+## Table for events
+
+Debezium is low level - it stream changes in table, it's up to us to set up proper
+table structure for EventStore.
+
+```MySQL
+CREATE TABLE available_car
+(
+    aggregate_id bigint NOT NULL,
+    seq_nr bigint NOT NULL,
+    tags varchar(255),
+    payload BLOB,
+    PRIMARY KEY (aggregate_id, seq_nr)
+);
+```
+
+* `aggregate_id` - is ID of entry we store events for
+* `seq_nr` - sequence number of event in the journal
+* `tags` - whatever you need to find events later
+* `payload` - content of an event.
+
+You may add timestamp - it could be handy, or other information you need.
+
+`DELETE` and `UPDATE` statements on the table should not be allowed. Once your event persisted and published - it can't be modified. All hotfixes should be done
+via another events for corrections.
+
+# Conclusion
+
+Well, not sure what to say. With great power of distributed systems and async APIs comes great responsibility. Be responsible. Also stay home.
 
 
-### Setup PostgreSQL
-####
+
+TODO: replace layer with level.
+TODO: grammarly
+TODO: add diagrams for solutions, and, perhaps, initial problem statement.
+TODO: obligation - you have to provide your downstream services a way to be idempotent.
