@@ -58,9 +58,9 @@ If you do not want or to can't expose your SoT - stick in stateless transformer 
 
 ## Problem
 
-Once a state of entity changed and this change persisted in your SoT database, the corresponding event has to be eventually published. If you can guarantee this then you corrupt state of downstream services, so:
+Once a state of entity changed and this change persisted in your SoT database, the corresponding event has to be eventually published. If you can't guarantee this then you corrupt state of downstream services, so:
 
-1. "At most once" guarantee on event publication is not enough. Theoretically this is possible, but implies many complications for the missing event corrections, and does not worth to be considered as an option.
+1. "At most once" guarantee on event publication is not enough. Theoretically this is possible, but implies many complications for missing events corrections, and does not worth to be considered as an option.
 1. "At least once" guarantee is enough. It's not hard for downstream to filter out duplicates if you attach unique sequence numbers to events.
 1. "Exactly once" possible, but cost a lot. Rarely makes sense in practice.
 

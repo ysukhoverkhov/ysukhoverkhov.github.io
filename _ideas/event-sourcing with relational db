@@ -1,0 +1,24 @@
+## Table for events
+
+Debezium is low level - it streams changes in table, it's up to us to set up proper table structure for even storage if our storage is event-sourced.
+
+```MySQL
+CREATE TABLE available_car
+(
+    aggregate_id bigint NOT NULL,
+    seq_nr bigint NOT NULL,
+    tags varchar(255),
+    payload BLOB,
+    PRIMARY KEY (aggregate_id, seq_nr)
+);
+```
+
+* `aggregate_id` - is ID of entry we store events for
+* `seq_nr` - sequence number of event in the journal
+* `tags` - whatever you need to find events later
+* `payload` - content of an event.
+
+You may add timestamp - it could be handy, or other information you need.
+
+`DELETE` and `UPDATE` statements on the table should not be allowed. Once your event persisted and published - it can't be modified. All hotfixes should be done via other events for corrections.
+
