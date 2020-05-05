@@ -3,7 +3,7 @@ Category: Distributed and rock-solid
 Date: 2020-4-30
 Tags: Distributed applications, event streaming, event-sourcing, CDC, PostgreSQL, MySQL
 
-Exposing state via "state change" events is well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our obligations as event publishers.
+Exposing state via "state change" events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our obligations as event publishers.
 
 ## Recap
 
@@ -16,9 +16,9 @@ EventSourcing (ES) is when your "Source of Truth" (SoT) is not a snapshot of a c
 ES is not when:
 
 1. You stream your SoT events.
-1. You apply CQRS pattern.
+1. You apply the CQRS pattern.
 
-So, if persistence level stores state as a series of events describing past - that's event-sourcing. Event streaming and CQRS usually comes together with event-sourcing, but have nothing to do with it per se and _possible without event-sourcing_.
+So, if persistence level stores state as a series of events describing the past - that's event-sourcing. Event streaming and CQRS usually come together with event-sourcing, but have nothing to do with it per se and _are possible without event-sourcing_.
 
 ### Which events we publish?
 
@@ -26,13 +26,13 @@ We publish any events that make sense for downstream services. Published events 
 
 ## Obligations of publishers
 
-To provide downstream services consistent view on a state, publishers have to fulfill obligations:
+To provide downstream services consistent view on a state, publishers have to fulfill these obligations:
 
-1. **No deviation from SoT**. Published Events must be all the time to be consistent with SoT state.
+1. **No deviation from SoT**. Published Events must all the time be consistent with SoT state.
 1. **Guarantee of publication**. Once entity state is changed - respective event _must_ be eventually published,
 1. **No publication until the new state persisted**. Nobody should see events before corresponding state modification is persisted. _If it's not persisted, then it's not happened yet._
 
-Bonus - that is not obligations of publishers:
+Bonus - what are not obligations of publishers:
 
 1. Providing downstream services historical events - it's up to readers to persist your events and go back in time if they need/want to.
 1. Providing downstream services projections of events aggregation - it's up to readers to build and maintain their projections/read models.
@@ -58,11 +58,11 @@ If you do not want or to can't expose your SoT - stick in stateless transformer 
 
 ## Problem
 
-Once a state of entity changed and this change persisted in your SoT database, the corresponding event has to be eventually published. If you can't guarantee this then you corrupt state of downstream services, so:
+Once a state of an entity changed and this change persisted in your SoT database, the corresponding event has to be eventually published. If you can't guarantee this then you corrupt state of downstream services, so:
 
-1. "At most once" guarantee on event publication is not enough. Theoretically this is possible, but implies many complications for missing events corrections, and does not worth to be considered as an option.
+1. "At most once" guarantee on event publication is not enough. Theoretically this is possible, but implies many complications for missing events corrections, and is not worth to be considered as an option.
 1. "At least once" guarantee is enough. It's not hard for downstream to filter out duplicates if you attach unique sequence numbers to events.
-1. "Exactly once" possible, but cost a lot. Rarely makes sense in practice.
+1. "Exactly once" possible, but it costs a lot. Rarely makes sense in practice.
 
 ## Solutions
 
@@ -72,7 +72,7 @@ There are databases "designed for event-sourcing."
 
 These databases optimized for persisting state as a series of read-only events, and they have built-in capability to publish events after persisting.
 
-A side note. These DBs may come with reach functionality for building projections, recovering historical events etc. Thus it's tempting to let your downstream services to read from it directly. But, if this DB used to persist SoT events, then this is your operational DB. Fulfillment of your service SLAs depends on this DB. So generally, it's a bad idea to have this DB public and let your downstream services read directly. We keep our _operational_ relational DBs private, why should we make _operational_ Event Stores public?
+A side note. These DBs may come with reach functionality for building projections, recovering historical events etc. Thus it's tempting to let your downstream services to read from it directly. But, if this DB is used to persist SoT events, then this is your operational DB. Fulfillment of your service SLAs depends on this DB. So generally, it's a bad idea to have this DB public and let your downstream services read directly. We keep our _operational_ relational DBs private, why should we make _operational_ Event Stores public?
 
 Examples - [EventStore](eventstore.com), or [Axon Server](https://axoniq.io/product-overview/axon-server).
 
@@ -96,20 +96,20 @@ Commit log streaming makes sense in databases with Master-Slave orchestration. F
 
 On the other hand, MySQL or PostgreSQL are DBMSes that suit us well - they have Master-Slave cluster architecture, thus streaming of commit log from Master node is a streaming of SoT modification events per se.
 
-Commit log in PostgreSQL called [Write-Ahead log](https://www.postgresql.org/docs/current/wal-intro.html)
+Commit log in PostgreSQL is called [Write-Ahead log](https://www.postgresql.org/docs/current/wal-intro.html)
 
 MySQL calls Commit log a [REDO log](https://dev.mysql.com/doc/refman/5.7/en/innodb-redo-log.html), but CDC is from [binary log](https://dev.mysql.com/doc/refman/8.0/en/binary-log.html), which is created after modifications in table state. Still, it looks like it works.
 
 ### Message bus as persistence
 
-There are durable message buses. Say, Kafka may retain messages for days. If we treat a message bus as SoT storage, then persisting and publishing of an event are strictly consistent and atomic, which is even more than we need! But Kafka does not provide selective reading of data, so it's practically useless as operational SoT storage.
+There are durable message buses. Say, Kafka may retain messages for days. If we treat a message bus as SoT storage, then persisting and publishing of an event are strictly consistent and atomic, which is even more than we need! But Kafka does not provide selective reading of data, so it's practically useless as an operational SoT storage.
 
 In practice, there is a hybrid approach - we back up a message bus with a DB for caching and read optimization. The flow would be:
 
 1. Events are published to a message bus,
 1. Events are read from the message bus and persisted in a DB by a utility app,
 1. Service for which this data is the operational data, recovers from DB and read up tail (head?) from the message bus,
-1. Consumers read the message bus only.
+1. Consumers read only from the message bus.
 
 That's complex, but if you have a strict SLA on data publication after persistence, that could be a way to go.
 
@@ -128,11 +128,11 @@ We constrained only by our imagination. For example, you can add "event publishe
 
 ## Problem
 
-Until modification of state persisted - this modification does not happen. If you crash split second before persisting new state and recovers - you would not know anything about the state you were about to persist. Your downstream services must know nothing about it as well; otherwise, they would have a corrupted view on actual state.
+Until modification of state has persisted - this modification did not happen. If you crash split second before persisting new state and recovers - you would not know anything about the state you were about to persist. Your downstream services must know nothing about it as well; otherwise, they would have a corrupted view on actual state.
 
 ## Solution
 
-If you publish on the Persistence level with one of the approaches above, this obligation fulfills for free.
+If you publish on the Persistence level with one of the approaches above, this obligation is fulfilled for free.
 
 If you publish on an application level, then just remember to publish events after you received confirmation from your persistence level. Discipline and/or shared utility libraries help.
 
