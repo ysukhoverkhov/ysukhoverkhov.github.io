@@ -102,7 +102,7 @@ MySQL calls Commit log a [REDO log](https://dev.mysql.com/doc/refman/5.7/en/inno
 
 ### Message bus as persistence
 
-There are durable message buses. Say, Kafka may retain messages for days. If we treat a message bus as SoT storage, then persisting and publishing of an event are strictly consistent and atomic, which is even more than we need! But Kafka does not provide selective reading of data, so it's practically useless as an operational SoT storage.
+There are durable message buses. For exampl, Kafka may retain messages for days. If we treat a message bus as SoT storage, then persisting and publishing of an event are strictly consistent and atomic, which is even more than we need! But Kafka does not provide selective reading of data, so it's practically useless as an operational SoT storage.
 
 In practice, there is a hybrid approach - we back up a message bus with a DB for caching and read optimization. The flow would be:
 
