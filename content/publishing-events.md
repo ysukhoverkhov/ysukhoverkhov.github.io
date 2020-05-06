@@ -42,7 +42,7 @@ Bonus - what are not obligations of publishers:
 
 ## Problem
 
-It should all the time be possible to reconstruct state from events we publish, and this reconstructed state must not conflict with SoT.
+It should always be possible to reconstruct state from events we publish, and this reconstructed state must not conflict with SoT.
 
 Of course, downstream services may fail while building their view of state from the events, but nevertheless, we must ensure we are not messing up on our publishing side.
 
@@ -50,15 +50,15 @@ Of course, downstream services may fail while building their view of state from 
 
 Make your state event-sourced and _publish SoT events_. In this case, your published events would be consistent with state by definition - they are the state.
 
-Or, _Publish entire state on its every modification_. That's easy, so we assume we have to stream events due to reasons (say, our state is "big") and continue our discussion ignoring this option.
+Or, _Publish the entire state on every modification_. That's easy, so we assume we have to stream events due to reasons (say, our state is "big") and continue our discussion ignoring this option.
 
-If you do not want or to can't expose your SoT - stick in stateless transformer between downstream services and your publisher. That adds risk of not fulfilling this obligation due to additional moving parts, but there are situations when it's necessary.
+If you do not want or can't expose your SoT - stick in a stateless transformer between downstream services and your publisher. That adds risk of not fulfilling this obligation due to additional moving parts, but there are situations when it's necessary.
 
 # Guarantee of publication
 
 ## Problem
 
-Once a state of an entity changed and this change persisted in your SoT database, the corresponding event has to be eventually published. If you can't guarantee this then you corrupt state of downstream services, so:
+Once a state of an entity changes and this change is persisted in your SoT database, the corresponding event has to be eventually published. If you can't guarantee this then you corrupt state of downstream services, so:
 
 1. "At most once" guarantee on event publication is not enough. Theoretically this is possible, but implies many complications for missing events corrections, and is not worth to be considered as an option.
 1. "At least once" guarantee is enough. It's not hard for downstream to filter out duplicates if you attach unique sequence numbers to events.
@@ -70,9 +70,9 @@ Once a state of an entity changed and this change persisted in your SoT database
 
 There are databases "designed for event-sourcing."
 
-These databases optimized for persisting state as a series of read-only events, and they have built-in capability to publish events after persisting.
+These databases are optimized for persisting state as a series of read-only events, and they have built-in capability to publish events after persisting.
 
-A side note. These DBs may come with reach functionality for building projections, recovering historical events etc. Thus it's tempting to let your downstream services to read from it directly. But, if this DB is used to persist SoT events, then this is your operational DB. Fulfillment of your service SLAs depends on this DB. So generally, it's a bad idea to have this DB public and let your downstream services read directly. We keep our _operational_ relational DBs private, why should we make _operational_ Event Stores public?
+A side note. These DBs may come with reach functionality for building projections, recovering historical events etc. Thus it's tempting to let your downstream services read from it directly. But, if this DB is used to persist SoT events, then this is your operational DB. Fulfillment of your service SLAs depends on this DB. So generally, it's a bad idea to have this DB public and let your downstream services read directly. We keep our _operational_ relational DBs private, why should we make _operational_ Event Stores public?
 
 Examples - [EventStore](eventstore.com), or [Axon Server](https://axoniq.io/product-overview/axon-server).
 
@@ -92,7 +92,7 @@ Commit log is a log of all the changes made. It is typically used for data recov
 
 _The Commit Log is the actual source of truth about the state of a DB instance. You can think of the tables as a queryable projection of the log._
 
-Commit log streaming makes sense in databases with Master-Slave orchestration. For example, Cassandra cluster of three instances would not have a master node; there could be conflicting states on different nodes, but CDC would publish corresponding events before Cassandra resolves the conflict. To mitigate it, we can publish from all three instances and build our conflict resolver, but we do not want to.
+Commit log streaming makes sense in databases with Master-Slave orchestration. For example, a Cassandra cluster of three instances would not have a master node; there could be conflicting states on different nodes, but CDC would publish corresponding events before Cassandra resolves the conflict. To mitigate it, we can publish from all three instances and build our conflict resolver, but we do not want to.
 
 On the other hand, MySQL or PostgreSQL are DBMSes that suit us well - they have Master-Slave cluster architecture, thus streaming of commit log from Master node is a streaming of SoT modification events per se.
 
@@ -104,7 +104,7 @@ MySQL calls Commit log a [REDO log](https://dev.mysql.com/doc/refman/5.7/en/inno
 
 There are durable message buses. For exampl, Kafka may retain messages for days. If we treat a message bus as SoT storage, then persisting and publishing of an event are strictly consistent and atomic, which is even more than we need! But Kafka does not provide selective reading of data, so it's practically useless as an operational SoT storage.
 
-In practice, there is a hybrid approach - we back up a message bus with a DB for caching and read optimization. The flow would be:
+In practice, there is a hybrid approach - we back up a message bus with a6 DB for caching and read optimization. The flow would be:
 
 1. Events are published to a message bus,
 1. Events are read from the message bus and persisted in a DB by a utility app,
@@ -128,7 +128,7 @@ We constrained only by our imagination. For example, you can add "event publishe
 
 ## Problem
 
-Until modification of state has persisted - this modification did not happen. If you crash split second before persisting new state and recovers - you would not know anything about the state you were about to persist. Your downstream services must know nothing about it as well; otherwise, they would have a corrupted view on actual state.
+Until modification of state has persisted - this modification did not happen. If you crash split second before persisting a new state and recovers - you would not know anything about the state you were about to persist. Your downstream services must know nothing about it as well; otherwise, they would have a corrupted view on actual state.
 
 ## Solution
 
