@@ -1,9 +1,9 @@
-Title: Publishing events in distributed applications. Obligations of publishers.
+Title: Publishing events in distributed applications. Responsibilities of publishers.
 Category: Distributed and rock-solid
 Date: 2020-4-30
 Tags: Distributed applications, event streaming, event-sourcing, CDC, PostgreSQL, MySQL
 
-Exposing state via "state change" events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our obligations as event publishers.
+Exposing state via "state change" events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our responsibilities as event publishers.
 
 ## Recap
 
@@ -24,15 +24,15 @@ So, if persistence level stores state as a series of events describing the past 
 
 We publish any events that make sense for downstream services. Published events do not have to be SoT events. That's why we could publish events without our persistence level being event-sourced.
 
-## Obligations of publishers
+## Responsibilities of publishers
 
-To provide downstream services consistent view on a state, publishers have to fulfill these obligations:
+To provide downstream services consistent view on a state, publishers have to fulfill these responsibilities:
 
 1. **No deviation from SoT**. Published Events must all the time be consistent with SoT state.
 1. **Guarantee of publication**. Once entity state is changed - respective event _must_ be eventually published,
 1. **No publication until the new state persisted**. Nobody should see events before corresponding state modification is persisted. _If it's not persisted, then it's not happened yet._
 
-Bonus - what are not obligations of publishers:
+Bonus - what are not responsibilities of publishers:
 
 1. Providing downstream services historical events - it's up to readers to persist your events and go back in time if they need/want to.
 1. Providing downstream services projections of events aggregation - it's up to readers to build and maintain their projections/read models.
@@ -52,7 +52,7 @@ Make your state event-sourced and _publish SoT events_. In this case, your publi
 
 Or, _Publish the entire state on every modification_. That's easy, so we assume we have to stream events due to reasons (say, our state is "big") and continue our discussion ignoring this option.
 
-If you do not want or can't expose your SoT - stick in a stateless transformer between downstream services and your publisher. That adds risk of not fulfilling this obligation due to additional moving parts, but there are situations when it's necessary.
+If you do not want or can't expose your SoT - stick in a stateless transformer between downstream services and your publisher. That adds risk of not fulfilling this responsibilities due to additional moving parts, but there are situations when it's necessary.
 
 # Guarantee of publication
 
@@ -132,7 +132,7 @@ Until modification of state has persisted - this modification did not happen. If
 
 ## Solution
 
-If you publish on the Persistence level with one of the approaches above, this obligation is fulfilled for free.
+If you publish on the Persistence level with one of the approaches above, this responsibilities is fulfilled for free.
 
 If you publish on an application level, then just remember to publish events after you received confirmation from your persistence level. Discipline and/or shared utility libraries help.
 
