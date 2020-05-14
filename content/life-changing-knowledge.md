@@ -7,7 +7,7 @@ This is the list of top X articles/books/talks which influenced me professionall
 
 # It's all subjective
 
-Everything bellow works for me. It would not necessarily work for you.
+Everything below works for me. It would not necessarily work for you.
 Because...
 
 # Context matters
@@ -20,7 +20,7 @@ Experience is not knowing what's the most effective way of working. Experience i
 
 ### ["Simple Made Easy"](https://www.infoq.com/presentations/Simple-Made-Easy/) by Rich Hickey
 
-"Easy" and "Hard" is a description of the effort required to get to the solution. "Simple" and "Complex" is the property of a solution. It could be easy to get to a complex solution and quite difficult to get to a simple one.
+"Easy" and "Hard" is a description of the effort required to get to the solution. "Simple" and "Complex" are the properties of a solution. It could be easy to get to a complex solution and quite difficult to get to a simple one.
 
 Once I understood it, my reasoning about the selection of the best solution became way more objective.
 
@@ -32,13 +32,13 @@ The book is a must-read for everybody building distributed applications. A lot o
 
 It's about integration patterns between (micro)services. It's quite objective. Almost all you need to know in one book.
 
-# Being functional and reactive.
+# Being functional and reactive
 
 Being functional and controlling side effects has its value. Not going to convince, stuff bellow for already convinced.
 
 ### ["Category Theory for Programmers"](https://github.com/hmemcpy/milewski-ctfp-pdf/) by Bartosz Milewski
 
-Bartosz Milewski explains Category Theory and gives examples of its applicability for software engineering. Essential if you want to understand why our beloved Cats, ZIO, and their friends are like that. Why monad is defined as it is and why its laws defined as they and not differently?
+Bartosz Milewski explains Category Theory and gives examples of its applicability for software engineering. Essential if you want to understand why our beloved Cats, ZIO, and their friends are like that. Why is monad defined as it is and why are its laws defined as they and not differently?
 
 And OMG, it's hard. I get back to it from time to time to refresh base math and find out is the material more clear now? I still have no idea what's going on in advanced topics there.
 
@@ -46,7 +46,7 @@ And OMG, it's hard. I get back to it from time to time to refresh base math and 
 
 That's a small "just for frontend" language that transpiles into JavaScript. ELM is almost pure lambda calculus. Think of it as of really-really simplified Haskell. Playing with it should turn one's brain in a right Functional position.
 
-### [Subtyping VS Subclassing VS Inheriteance](https://www.cs.princeton.edu/courses/archive/fall98/cs441/mainus/node12.html)
+### [Subtyping VS Subclassing VS Inheritance](https://www.cs.princeton.edu/courses/archive/fall98/cs441/mainus/node12.html)
 
 Ok, this is a short one. Do you realize inheritance, subtyping, and subclassing are all three different terms with their meaning and not just synonyms? I didn't until I read the article.
 
@@ -77,7 +77,7 @@ So, it was like the early 2000s. I do not remember what the book  was about, but
 
 Sounds obvious, right? Yet, I almost do not see people providing or asking for all this information. If you give a task or somebody gives you a task - make sure all five points are there.
 
-# Working in humans
+# Working with humans
 
 Software engineering is a young discipline. Many practices are based on the previous subjective experience of successful engineers. That means part of software engineer work is a negotiation with businesspeople and other engineers. "Negotiation" is an engineering skill, and the more "senior" your position is, the more valuable this skill is.
 
@@ -105,7 +105,7 @@ I studied Applied Systems Analysis in my childhood in Russia, so everything I re
 My main takeaways are:
 
 1. Concept of "positive intervention" - with any intervention in a problematic situation, one should try to make at least one stakeholder happier and other stakeholders not sad.
-2. Understanding the fact what "voting," "polling," etc. have nothing to do with "democracy," "everybody is valuable," etc. If everybody is valuable, listen to everybody and take the opinion of every onto the account. Literally.
+2. Understanding the fact that "voting," "polling," etc. have nothing to do with "democracy," "everybody is valuable," etc. If everybody is valuable, listen to everybody and take the opinion of everyone into the account. Literally.
 
 ### ["The transformative power of classical music"](https://www.ted.com/talks/benjamin_zander_the_transformative_power_of_classical_music) by Benjamin Zander
 
