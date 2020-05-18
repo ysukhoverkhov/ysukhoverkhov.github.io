@@ -12,7 +12,7 @@ Because...
 
 # Context matters
 
-Context matters much more than everything else. What works with particular people and the specific problem would not work with other people or other problems.
+Context matters much more than anything else. What works with particular people and the specific problem would not work with other people or other problems.
 
 Experience is not knowing what's the most effective way of working. Experience is our capability to quickly adapt to a new context and find the most effective way of working in this new context.
 
@@ -26,7 +26,7 @@ Once I understood it, my reasoning about the selection of the best solution beca
 
 ### ["Designing Data-Intensive Applications"](https://www.goodreads.com/book/show/23463279-designing-data-intensive-applications) by Martin Kleppmann
 
-The book is a must-read for everybody building distributed applications. A lot of takeaways, to name few: consistency levels - how to achieve, which to use then; databases - internals, use cases; various consensus algorithms, 2-phase commits, 3-phase commits, sagas. All these explained in one single book.
+The book is a must-read for everybody building distributed applications. A lot of takeaways, to name a few: consistency levels - how to achieve, which one to use then; databases - internals, use cases; various consensus algorithms, 2-phase commits, 3-phase commits, sagas. All these explained in one single book.
 
 ### ["Enterprise Integration Patterns"](https://www.goodreads.com/book/show/85012.Enterprise_Integration_Patterns) by Gregor Hohpe
 
@@ -34,23 +34,23 @@ It's about integration patterns between (micro)services. It's quite objective. A
 
 # Being functional and reactive
 
-Being functional and controlling side effects has its value. Not going to convince, stuff bellow for already convinced.
+Being functional and controlling side effects has its value. Not going to convince, stuff below for already convinced.
 
 ### ["Category Theory for Programmers"](https://github.com/hmemcpy/milewski-ctfp-pdf/) by Bartosz Milewski
 
 Bartosz Milewski explains Category Theory and gives examples of its applicability for software engineering. Essential if you want to understand why our beloved Cats, ZIO, and their friends are like that. Why is monad defined as it is and why are its laws defined as they and not differently?
 
-And OMG, it's hard. I get back to it from time to time to refresh base math and find out is the material more clear now? I still have no idea what's going on in advanced topics there.
+And OMG, it's hard. I get back to it from time to time to refresh basic math and find out if the material is more clear now? I still have no idea what's going on in advanced topics there.
 
-### [ELM](https://elm-lang.org/)
+### [Elm](https://elm-lang.org/)
 
-That's a small "just for frontend" language that transpiles into JavaScript. ELM is almost pure lambda calculus. Think of it as of really-really simplified Haskell. Playing with it should turn one's brain in a right Functional position.
+That's a small "just for frontend" language that transpiles into JavaScript. Elm is almost pure lambda calculus. Think of it as of really-really simplified Haskell. Playing with it should turn one's brain in a right Functional position.
 
 ### [Subtyping VS Subclassing VS Inheritance](https://www.cs.princeton.edu/courses/archive/fall98/cs441/mainus/node12.html)
 
 Ok, this is a short one. Do you realize inheritance, subtyping, and subclassing are all three different terms with their meaning and not just synonyms? I didn't until I read the article.
 
-And after reading that, I was like, "So what why my OOP design was so screwed!"
+And after reading that, I was like, "So that's why my OOP design was so screwed!"
 
 # Talking to business people
 
@@ -79,7 +79,7 @@ Sounds obvious, right? Yet, I almost do not see people providing or asking for a
 
 # Working with humans
 
-Software engineering is a young discipline. Many practices are based on the previous subjective experience of successful engineers. That means part of software engineer work is a negotiation with businesspeople and other engineers. "Negotiation" is an engineering skill, and the more "senior" your position is, the more valuable this skill is.
+Software engineering is a young discipline. Many practices are based on the previous subjective experience of successful engineers. That means part of software engineer work is a negotiation with business people and other engineers. "Negotiation" is an engineering skill, and the more "senior" your position is, the more valuable this skill is.
 
 ### ["Building Microservices: Designing Fine-Grained Systems"](https://www.goodreads.com/book/show/22512931-building-microservices) by Sam Newman
 
