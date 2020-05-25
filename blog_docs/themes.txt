@@ -5,4 +5,7 @@
 2.5. https://github.com/fle/pelican-sober/tree/4545828e84f25ee7544193cf96499228dd6221bf - looks like nice, but it's old. check responsiveness.
 2.6. https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3
 4. Good example of bootstrap3 - https://lappland.io/
+5. Another good example - https://christiantietze.de/hire-me/teaching-coaching/
 
+
+https://www.jpattonassociates.com/the-new-backlog/ - good example

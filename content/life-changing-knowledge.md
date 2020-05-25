@@ -1,22 +1,23 @@
-Title: Life-changing lessons.
+Title: Life-changing lessons for IT person
 Category: Subjective
 Date: 2020-5-10
 Tags: education, books, talks
+Summary: This is the list of top X articles/books/talks which influenced me professionally the most. 
 
-This is the list of top X articles/books/talks which influenced me professionally the most. Most of them are from the IT perspective, but if you are not in IT, this also could be useful. Do not hesitate.
+This is the list of top X articles/books/talks which influenced me professionally the most.
 
-# It's all subjective
+## It's all subjective
 
 Everything below works for me. It would not necessarily work for you.
 Because...
 
-# Context matters
+## Context matters
 
 Context matters much more than anything else. What works with particular people and the specific problem would not work with other people or other problems.
 
 Experience is not knowing what's the most effective way of working. Experience is our capability to quickly adapt to a new context and find the most effective way of working in this new context.
 
-# Designing solutions
+## Designing solutions
 
 ### ["Simple Made Easy"](https://www.infoq.com/presentations/Simple-Made-Easy/) by Rich Hickey
 
@@ -32,7 +33,7 @@ The book is a must-read for everybody building distributed applications. A lot o
 
 It's about integration patterns between (micro)services. It's quite objective. Almost all you need to know in one book.
 
-# Being functional and reactive
+## Being functional and reactive
 
 Being functional and controlling side effects has its value. Not going to convince, stuff below for already convinced.
 
@@ -52,7 +53,7 @@ Ok, this is a short one. Do you realize inheritance, subtyping, and subclassing 
 
 And after reading that, I was like, "So that's why my OOP design was so screwed!"
 
-# Talking to business people
+## Talking to business people
 
 ### Domain Driven Design
 
@@ -77,7 +78,7 @@ So, it was like the early 2000s. I do not remember what the book  was about, but
 
 Sounds obvious, right? Yet, I almost do not see people providing or asking for all this information. If you give a task or somebody gives you a task - make sure all five points are there.
 
-# Working with humans
+## Working with humans
 
 Software engineering is a young discipline. Many practices are based on the previous subjective experience of successful engineers. That means part of software engineer work is a negotiation with business people and other engineers. "Negotiation" is an engineering skill, and the more "senior" your position is, the more valuable this skill is.
 

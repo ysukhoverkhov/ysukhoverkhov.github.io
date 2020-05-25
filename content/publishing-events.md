@@ -1,8 +1,9 @@
-Title: Publishing events in distributed applications. Responsibilities of publishers.
+Title: Publishing events in distributed applications. Responsibilities of publishers
 Category: Distributed and rock-solid
 Date: 2020-4-30
 Tags: Distributed applications, event streaming, event-sourcing, CDC, PostgreSQL, MySQL
-
+Summary: Exposing state via "state change" events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our responsibilities as event publishers.
+ 
 Exposing state via "state change" events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our responsibilities as event publishers.
 
 ## Recap
@@ -38,15 +39,15 @@ Bonus - what are not responsibilities of publishers:
 1. Providing downstream services projections of events aggregation - it's up to readers to build and maintain their projections/read models.
 
 
-# No deviation from SoT
+## No deviation from SoT
 
-## Problem
+### Problem
 
 It should always be possible to reconstruct state from events we publish, and this reconstructed state must not conflict with SoT.
 
 Of course, downstream services may fail while building their view of state from the events, but nevertheless, we must ensure we are not messing up on our publishing side.
 
-## Solutions
+### Solutions
 
 Make your state event-sourced and _publish SoT events_. In this case, your published events would be consistent with state by definition - they are the state.
 
@@ -54,9 +55,9 @@ Or, _Publish the entire state on every modification_. That's easy, so we assume 
 
 If you do not want or can't expose your SoT - stick in a stateless transformer between downstream services and your publisher. That adds risk of not fulfilling this responsibilities due to additional moving parts, but there are situations when it's necessary.
 
-# Guarantee of publication
+## Guarantee of publication
 
-## Problem
+### Problem
 
 Once a state of an entity changes and this change is persisted in your SoT database, the corresponding event has to be eventually published. If you can't guarantee this then you corrupt state of downstream services, so:
 
@@ -64,9 +65,9 @@ Once a state of an entity changes and this change is persisted in your SoT datab
 1. "At least once" guarantee is enough. It's not hard for downstream to filter out duplicates if you attach unique sequence numbers to events.
 1. "Exactly once" possible, but it costs a lot. Rarely makes sense in practice.
 
-## Solutions
+### Solutions
 
-### Databases "for event-sourcing"
+#### Databases "for event-sourcing"
 
 There are databases "designed for event-sourcing."
 
@@ -76,7 +77,7 @@ A side note. These DBs may come with reach functionality for building projection
 
 Examples - [EventStore](eventstore.com), or [Axon Server](https://axoniq.io/product-overview/axon-server).
 
-### Change Data Capture (CDC) in Databases
+#### Change Data Capture (CDC) in Databases
 
 CDC is when we capture changes in our data and then do something with these changes, say, publish as events. Example of homemade CDC - triggers in RDBMS.
 
@@ -100,7 +101,7 @@ Commit log in PostgreSQL is called [Write-Ahead log](https://www.postgresql.org/
 
 MySQL calls Commit log a [REDO log](https://dev.mysql.com/doc/refman/5.7/en/innodb-redo-log.html), but CDC is from [binary log](https://dev.mysql.com/doc/refman/8.0/en/binary-log.html), which is created after modifications in table state. Still, it looks like it works.
 
-### Message bus as persistence
+#### Message bus as persistence
 
 There are durable message buses. For exampl, Kafka may retain messages for days. If we treat a message bus as SoT storage, then persisting and publishing of an event are strictly consistent and atomic, which is even more than we need! But Kafka does not provide selective reading of data, so it's practically useless as an operational SoT storage.
 
@@ -115,7 +116,7 @@ That's complex, but if you have a strict SLA on data publication after persisten
 
 Check [kafka-journal](https://github.com/evolution-gaming/kafka-journal) for inspiration.
 
-### Application level
+#### Application level
 
 We constrained only by our imagination. For example, you can add "event published" flag to the metadata of each event in your SoT database and:
 
@@ -124,23 +125,23 @@ We constrained only by our imagination. For example, you can add "event publishe
 3. set the flag to "true,"
 4. on each crash/outage recovery scan the SoT DB and go through steps 2 and 3 for all events with the flag equal to "false."
 
-# No publication until new state persisted
+## No publication until new state persisted
 
-## Problem
+### Problem
 
 Until modification of state has persisted - this modification did not happen. If you crash split second before persisting a new state and recovers - you would not know anything about the state you were about to persist. Your downstream services must know nothing about it as well; otherwise, they would have a corrupted view on actual state.
 
-## Solution
+### Solution
 
 If you publish on the Persistence level with one of the approaches above, this responsibilities is fulfilled for free.
 
 If you publish on an application level, then just remember to publish events after you received confirmation from your persistence level. Discipline and/or shared utility libraries help.
 
-# Feet wet, hands dirty
+## Feet wet, hands dirty
 
 Let's set up an RDBMS as SoT Event Store and leverage its commit log streaming to publish all SoT events to Kafka.
 
-## Debezium
+### Debezium
 
 [Debezium](https://debezium.io/) is an open-source distributed platform for change data capture. Start it up, point it at your databases, and your apps can start responding to all of the inserts, updates, and deletes that other apps commit to your databases. Debezium is durable and fast, so your apps can respond quickly and never miss an event, even when things go wrong. As they say.
 
@@ -148,6 +149,6 @@ Debezium is built on top of Apache Kafka and provides Kafka Connect compatible c
 
 The project provides a tutorial for setting up CDC of MySQL and streaming the events to Kafka. They provide Docker images with all moving parts preconfigured. [Try it out](https://debezium.io/documentation/reference/1.1/tutorial.html)
 
-# Conclusion
+## Conclusion
 
 With great power of distributed systems and messaging Architectures comes great responsibility. Be responsible. Take care of your downstream fellows.

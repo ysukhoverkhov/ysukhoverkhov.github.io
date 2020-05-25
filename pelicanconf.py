@@ -3,15 +3,16 @@
 from __future__ import unicode_literals
 
 AUTHOR = u'Yury Sukhoverkhov'
-SITENAME = u'Yury Sukhoverkhov'
+SITENAME = u'yurySukhoverkhov'
 SITEURL = 'https://ysukhoverkhov.github.io'
 
 THEME = 'pelican-bootstrap3'
 
-BOOTSTRAP_THEME = 'yeti'
+# BOOTSTRAP_THEME = 'yeti'
 # BOOTSTRAP_THEME = 'simplex'
 # BOOTSTRAP_THEME = 'sandstone'
 # BOOTSTRAP_THEME = 'lumen'
+BOOTSTRAP_THEME = 'flatly'
 BOOTSTRAP_FLUID = True
 
 PATH = 'content'
@@ -39,9 +40,15 @@ SOCIAL = (('linkedin', 'https://www.linkedin.com/in/ysukhoverkhov/'),
 
 DEFAULT_PAGINATION = False
 
-STATIC_PATHS = [
-  'static',
-]
+CUSTOM_CSS = 'static/custom.css'
+
+# Tell Pelican to add 'extra/custom.css' to the output dir
+STATIC_PATHS = ['images', 'extra/custom.css']
+
+# Tell Pelican to change the path to 'static/custom.css' in the output dir
+EXTRA_PATH_METADATA = {
+    'extra/custom.css': {'path': 'static/custom.css'}
+}
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
