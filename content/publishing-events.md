@@ -1,9 +1,9 @@
 Title: Publishing events in distributed applications. Responsibilities of publishers
 Category: Distributed and rock-solid
 Date: 2020-4-30
-Tags: Distributed applications, event streaming, event-sourcing, CDC, PostgreSQL, MySQL
+Tags: distributed applications, event streaming, event-sourcing, CDC, PostgreSQL, MySQL
 Summary: Exposing state via "state change" events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our responsibilities as event publishers.
- 
+
 Exposing state via "state change" events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our responsibilities as event publishers.
 
 ## Recap

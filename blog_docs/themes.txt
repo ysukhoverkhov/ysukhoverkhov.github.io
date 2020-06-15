@@ -9,3 +9,5 @@
 
 
 https://www.jpattonassociates.com/the-new-backlog/ - good example
+
+https://joa.sh/ - minimal and good one.

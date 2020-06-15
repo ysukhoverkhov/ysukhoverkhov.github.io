@@ -15,6 +15,8 @@ THEME = 'pelican-bootstrap3'
 BOOTSTRAP_THEME = 'flatly'
 BOOTSTRAP_FLUID = True
 
+PYGMENTS_STYLE = 'emacs'
+
 PATH = 'content'
 
 TIMEZONE = 'Europe/Amsterdam'

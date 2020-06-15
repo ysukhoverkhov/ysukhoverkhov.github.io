@@ -1,12 +1,10 @@
+3 more articles
 1. Publish to Medium
 1. Add comments.
 1. About me
 5. google analytics.
 3. SHould be a section "for business enquires"
-4. Нужен шрифт с засечками
-5. https://philipkiely.com/wfsd/ - take theme from this guy.
 6. Teaching, coaching example - https://christiantietze.de/hire-me/teaching-coaching/
-7. add summary for all the articles.
 8. Favicon (instructions here - https://fedidat.com/20-pelican/)
 9. Go through all the features and find useful - https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3, https://github.com/DandyDev/pelican-bootstrap3/wiki/Variables
 

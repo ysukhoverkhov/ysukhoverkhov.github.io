@@ -1,107 +1,97 @@
-Title: "When to create new microservice" checklist/heuristics
+Title: "When to create a new microservice" heuristics
 Category: Distributed and rock-solid
-Date: 2020-5-10
-Tags: microservices, heuristics
-Status: draft
+Date: 2020-6-2
+Tags: microservices, heuristics, distributed applications
+Summary: There are debates about "should we create a new microservice for this functionality"? Here are my heuristics on the subject.
 
+There are debates about "should we create a new microservice for this functionality"? Here are my heuristics on the subject.
 
-Glossary
+## What is it?
 
-Application - an artifact which can instantiate a process (ex: Jar, also it's called "microservice" in the title)
+This is a checklist of factors to remember while deciding on combining two components in a single Microservice. These are not rules, but heuristics. One has to apply common sense and contextual reasoning to make a decision.
 
-Process - instance of the application that is being executed (ex: a JVM instance running application from Jar)
+## Glossary
 
-Aggregate - A cluster of associated objects that are treated as a unit for the purpose of data changes. External references are restricted to one member of the AGGREGATE, designated as the root.
+*Heuristic* - a simple strategy or mental processes that humans use to form judgments quickly, make decisions, and find solutions to complex problems. A heuristic is not a rule, but a starting point for reasoning.
 
-Service - An operation offered as an interface that stands alone in the model, with no encapsulated state. Typically used to perform complex business transaction which are not in scope of a single Aggregate.
+### Operational terms
 
-Read model - model specialized for reads. It takes events produced by the domain and uses them to build and maintain a model that is suitable for answering the client's queries. It can draw on events from different aggregates and even different types of aggregate.
+*Microservice* - an artifact that can instantiate a process (ex: Jar, docker image).
 
-Component - either Aggregate or Service or Read Model.
+*Process* - an instance of a microservice being executed (ex: a JVM instance of running application from Jar).
 
-Mission critical component - in case of failure imposes significant financial loses (homework - find out with your PO is your particular component mission critical).
-Scope of the document
+### Software engineering terms
 
-    A checklist of factors to be taken into account while making a decision about combining two components in a single Application.
-    Will not give universal answer - one will have to apply heuristics to make a decision.
+*Component* - a loosely coupled piece of logic that could be a microservice (but does not have to). Think of Aggregate or Service or Read Model.
 
-Assumptions
+*Critical component* - a component which failure yields high losses (whatever "high" for your business is).
 
-    Each component in our model can be categorized either as Aggregate or as a Service or as a Read model.
-    These components are well designed - "good" design is out of scope of the document.
+## Microservices as a mean to tame complexity
 
-How to read/use
+### Complexity of design
 
-Initially correctly designed components work well with component per service. But this approach increase complexity and cost of both operations and development and decrease performance. So we would like to combine them in applications whenever it's possible.
+Monoliths are good. They have less operational complexity and impose a less mental burden on communication issues than distributed applications. But they turn to become "big balls of mud." So we manage complexity by splitting a monolith into a set of loosely coupled microservices at the cost of increasing complexity of communication and operations.
 
-Bellow there are checklists of things we are taking into account while making the decision about combining two particular component types. If an app has already three components in it and you thinking about adding fourth - verify your candidate against each of three components which are already in the app. Apply buddy and common sense if got conflicting results (smile).
+But, I'm sure we are not managing it. A monolithic application with carefully designed components could be an elegant and simple piece of software. At the same time, a distributed app could be a perfect distributed "ball of mud."
 
-A - Aggregate
+If a team of engineers has built "a ball of mud," they would probably make a distributed "ball of mud" as well. Microservices are not a means to increase the quality of components design.
 
-S - Service
+Also, refactoring is much more comfortable inside one big single "ball of mud."
 
-R - Read model
+```text
+Heuristic #1: Microservices are not to be used to reduce the complexity of the design.
+```
 
-? - Component of any type
+### Complexity of management
 
-(plus) - consider combining in one app
+We are splitting engineering forces into teams around business tasks or loosely coupled engineering tasks. It makes sense to split application in a loosely coupled microservices if teams develop and deploy changes with different pace or want to use various technologies to resolve their business problems.
 
-(minus) - consider separate apps
+```text
+Heuristic #2: If different teams own components, it makes sense to decouple these teams and splitting an application in microservices.
+```
 
-Checklists
+Answer on a question "How to assign ownership of components of an application by teams and does it make sense?" - out of scope.
 
-? + ?
+### Operational complexity
 
-(plus) - both components are critical and failure of one of them makes another useless.
+The more microservices to manage - the more complex task it is. But the complexity does not increase linearly. A proper build infrastructure handling five microservices would handle 50. But, most probably, not 500. But still...
 
-(minus) - one of components is critical and failure of another does not render critical component useless, but may render it malfunction due to same process sharing.
+```text
+Heuristic #3: If unsure - keep components in a single microservice to reduce operational complexity.
+```
 
-(minus) - there are strong reasons to ship functionality provided by components independently, thus we need independent deployments.
+### Fault tolerance
 
-Examples:
+Two components are critical for the same business task, and failure of one of them makes another useless.
 
-RNG Blackjack Game Aggregate, RNG Roulette game Aggregate
+Example: We are making a search engine for "best" airplane tickets from a to B. A logic for searching these tickets makes use of a read model representing the current state of prices and availability. Building such a read model is quite a task, so it could be tempting to build it as a microservice. But if our engine fails, this read model component is useless. If the read model crashes - the engine has nothing to query.
 
-Both mission critical, but are independent to each other. We have no reason to put in same app.
+```text
+Heuristic #4: If two components are critical for the same business task - keep them together.
+```
 
-Failure of BJ does not makes RT failed, but may render it useless. For example due to error in BJ code there will be a huge memory leak. So we want them in separate applications.
+```text
+Obvious heuristic #5: If components are critical for different business tasks - keep them separated.
+```
 
-RNG Game DWH Events Producer, RNG Game game Aggregate
+We do not want our tickets search engine to tear down our users back office.
 
-Both of them are critical. DWH events generator is useless without game and game can tolerate only short DWH even generator outage. It could make sense to put them in a single application.
+```text
+Even more obvious heuristic #6: Keep not critical components separated from critical.
+```
 
-There is additional demand from Ops to have DWH Events Generator as a dedicated service since they want it to deploy individually or disaster recovery. So perhaps point 3 in the checklist wins.
+We do not want logic for sending out email notifications in the same deployment unit with the search engine. If it crashes, it's okay to deliver some notifications minutes later, but it's not okay to stop rendering search service.
 
-RNG Game DWH Events Producer, DWH Events Consumer
+Still, keep in mind these are heuristics and not rules. For example, one may want to violate #4 if the read model is queried infrequently, but takes a lot of time to warm up. One may want to separate it from the search logic just because you do not want to wait for its recovery for many minutes every time you redeploy search logic.
 
-Both are critical, so we perhaps want all the DWH Event generators be in the same app as DWH events consumer, but we do not. If DWH Event generator is failing then DWH Events consumer still useful since it receives events from other games.
+### Scalability complexity
 
-A + S
+Let's continue the evaluation of the example. Our search logic is under high load - we spawn 100 processes of microservice with the search logic. Should keep read model in the same microservice, thus creating 100 copies of it? If the query rate is "high," and the size of the model is "small", so you can keep it all in RAM - yes. If it's huge, then "no" (and later either scale together with scaling database instances or have a dedicated hardware instance for the read model with huge about if RAM).
 
-(plus) - Most of other components orchestrated are already in the same app
+```text
+Heuristic #7: If components could be scaled together - keep then in the same deployment unit, separate overwise.
+```
 
-Example:
+## Afterword
 
-RNG Game Aggregate, Player Wallet Aggregate, RNG Game Service
-
-One of concerns of RNG game service - orchestration of business transactions between game aggregate and wallet aggregate. Obviously we do not want to put RNG Game Service in the same app with Wallet Aggregate (see ?+?). But it make sense to put it in the same app as RNG Game Aggregate since they are both critical in scope of RNG and only useful if both are functioning.
-
-A/S + R
-
-(plus) - Read model is used by the Aggregate/Service (it reads from the model). This means the same read model can be used in several apps (in form of library).
-
-(minus) - This read model is optional for the Aggregate/Service to function and Aggregate/Service is critical.
-
-(minus) - Built read model consumes a lot of resources and used by many Aggregates/Services.
-
-(plus) - Read model has strict SLA on consistency which can't be fulfilled without placing it in the same application as Aggregate which events are used to build the model
-
-Example:
-
-RNG Game Service, User Session Read model
-
-We, potentially can build read model for user sessions in each service which strictly need it, unless there is a requirement like "if Auth service is not working then users should not be authenticated", so we can't use outdated model. In this case Auth Service and Auth Read model should reside in one application and others query session or subscribe on read model changes.
-
-RNG Game Service, Table Assignment Read model
-
-Each RNG game uses this read model, there are no strict SLAs, not much resources of consumed, so we want to have this read model in each of RNG applications which need it
+Want to add something, disagree? Write a comment below and let's discuss it. This article is a living set of heuristics I update as I get new experience.
