@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>TODO: Horizontal scaling of microservices. Data consistency concerns or "A definitive guide of how to not split one's brain." - yurySukhoverkhov</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://ysukhoverkhov.github.io/drafts/todo-horizontal-scaling-of-microservices-data-consistency-concerns-or-a-definitive-guide-of-how-to-not-split-ones-brain.html">
+
+        <meta name="author" content="Yury Sukhoverkhov" />
+        <meta name="keywords" content="microservices,distributed applications,CQRS,event-sourcing,commands,fault tolerance,scalability" />
+        <meta name="description" content="TODO: If several instances of a microservice are running in parallel, there is no reliable way to predict which instance receives commands/requests. This makes the task of ensuring data consistency not as trivial as it may look like, especially in &#34;high contention&#34; applications." />
+
+        <meta property="og:site_name" content="yurySukhoverkhov" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="TODO: Horizontal scaling of microservices. Data consistency concerns or &#34;A definitive guide of how to not split one&#39;s brain.&#34;"/>
+        <meta property="og:url" content="https://ysukhoverkhov.github.io/drafts/todo-horizontal-scaling-of-microservices-data-consistency-concerns-or-a-definitive-guide-of-how-to-not-split-ones-brain.html"/>
+        <meta property="og:description" content="TODO: If several instances of a microservice are running in parallel, there is no reliable way to predict which instance receives commands/requests. This makes the task of ensuring data consistency not as trivial as it may look like, especially in &#34;high contention&#34; applications."/>
+        <meta property="article:published_time" content="2020-06-16" />
+            <meta property="article:section" content="Distributed and rock-solid" />
+            <meta property="article:tag" content="microservices" />
+            <meta property="article:tag" content="distributed applications" />
+            <meta property="article:tag" content="CQRS" />
+            <meta property="article:tag" content="event-sourcing" />
+            <meta property="article:tag" content="commands" />
+            <meta property="article:tag" content="fault tolerance" />
+            <meta property="article:tag" content="scalability" />
+            <meta property="article:author" content="Yury Sukhoverkhov" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://ysukhoverkhov.github.io/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://ysukhoverkhov.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://ysukhoverkhov.github.io/theme/css/pygments/emacs.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://ysukhoverkhov.github.io/theme/css/style.css" type="text/css"/>
+        <link href="https://ysukhoverkhov.github.io/static/custom.css" rel="stylesheet">
+
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://ysukhoverkhov.github.io/" class="navbar-brand">
+yurySukhoverkhov            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                        <li class="active">
+                            <a href="https://ysukhoverkhov.github.io/category/distributed-and-rock-solid.html">Distributed and rock-solid</a>
+                        </li>
+                        <li >
+                            <a href="https://ysukhoverkhov.github.io/category/subjective.html">Subjective</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://ysukhoverkhov.github.io/drafts/todo-horizontal-scaling-of-microservices-data-consistency-concerns-or-a-definitive-guide-of-how-to-not-split-ones-brain.html"
+                       rel="bookmark"
+                       title="Permalink to TODO: Horizontal scaling of microservices. Data consistency concerns or "A definitive guide of how to not split one's brain."">
+                        TODO: Horizontal scaling of microservices. Data consistency concerns or "A definitive guide of how to not split one's brain."
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2020-06-16T00:00:00+02:00"> Tue 16 June 2020</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://ysukhoverkhov.github.io/tag/microservices.html">microservices</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/distributed-applications.html">distributed applications</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/cqrs.html">CQRS</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/event-sourcing.html">event-sourcing</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/commands.html">commands</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/fault-tolerance.html">fault tolerance</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/scalability.html">scalability</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>TODO: add link to related article about guaranties in command and event processing.
+TODO: Copy-paste summary after syntax checks</p>
+<h2>(Fictional) case study</h2>
+<p>We are Elon Musk, and, as usual, we want to give away 10000 bitcoins. We split the prize among folks who resolve a "2+2*2" problem and submit a solution via a simple Web interface. Here are the rules:</p>
+<ol>
+<li>Everybody is split into "divisions by age." There are 100 divisions (for example, the first division is 0-1 years old, second 1-2, etc.).</li>
+<li>Each division would splint 100 bitcoins among participants.</li>
+<li>The first 10000 winners in each division get 0.01 bitcoin.</li>
+<li>We must give away precisely 100 BTC per division - even a 0.01 error in any direction would hit our имидж.</li>
+</ol>
+<p>We anticipate billions of participants, all of them trying to submit a solution at the same time. We like fair competitions, so there would be enough backend resources to process all the requests. So we rented 1000 machines.</p>
+<h3>Solution architecture</h3>
+<p>TODO: a diagram with FE and many instances of BE.</p>
+<h3>Solution complexities</h3>
+<p>The main complexity is to give away exactly the 100 BTC per division due to concurrent result evaluation. This problem boils down to "0.01 BTC left, and there are two competitors submitting results".</p>
+<h2>Possible solutions evaluation</h2>
+<h3>Just a shared variable somewhere</h3>
+<p>Implementation could be anything — for example, a field in a relational database.</p>
+<ol>
+<li>Instance one receive request</li>
+<li>Instance two receive request</li>
+<li>Instance one validate money</li>
+<li>Instance two validate money</li>
+<li>Instance one update persistence</li>
+<li>Instance two update persistence</li>
+<li>Instance one sends btc.</li>
+<li>Instance two sends btc.</li>
+</ol>
+<p>You see, this will not work. No Success. Let's try something more sophisticated.</p>
+<h3>A persistence with "compare and set" semantics</h3>
+<p>The persistence implementation could be a zookeeper.</p>
+<ol>
+<li>Instance one receive request</li>
+<li>Instance two receive request</li>
+<li>Instance one validate money</li>
+<li>Instance two validate money</li>
+<li>Instance one update persistence and send btc</li>
+<li>Instance two tries to update persistence, but since value already changed by instance one - the change would be rejected. Instance two would read value from persistence to try again, will see new amount of money is equal to 0 and will not do anything.</li>
+<li>Instance one sends btc.</li>
+</ol>
+<p>Success?!</p>
+<p>No.</p>
+<p>Instance one may crash after step 5, so we would reduce the amount of money left without actually sending them, which violates constrain "Distribute exactly 10000 BTC". What if we change the order of actions and send BTC before updating persistence? The problem still the same - we send BTC, but crash before we have a chance to update the amount of money left, so we would spend more than 10000.</p>
+<p>To satisfy "distribute exactly 10000," updating persistence and transferring BTC must be an "atomic" operation.</p>
+<p>How do we do it?</p>
+<h3>Optimistic locking</h3>
+<p>Let's use any database with ACID transactions. And this is complex because we need to elaborate SAGAs and Idempotency before we proceed (but such intensive preparations giving you a hint - this time it's a success).</p>
+<p>TODO: give a link to SAGA article.
+TODO: give a link to the idempotency article.</p>
+<p>We can achieve atomicity if our payment system idempotent on processing commands for BTC transfers. We also would have to add dedicated storage for persisting SAGA state for each request.</p>
+<p>Since the scenario is complex, let's separately walk through all the steps performed by a single service and then add second into play.</p>
+<ol>
+<li>Start transaction.</li>
+<li>Validate BTC left. If more than 0 - proceed, if less - rollback transaction and stop processing.</li>
+<li>Generate command id for a command to the payment system.</li>
+<li>Persist initial SAGA state with the generated command id.</li>
+<li>Persist the new amount of money.</li>
+<li>Commit transaction. If the commit fails (because another instance executed a concurrent transaction with a modified amount of money) goes to step 1.</li>
+<li>Send money using the generated command id.</li>
+<li>Persist the final state of SAGA, marking it complete.</li>
+</ol>
+<p>If our service crashes, it reads the state of all unfinished SAGAs and continues their execution.</p>
+<p>If it crashes at any point between steps 1 and 6 - the transaction would be rolled back, and it would as if we never received the command. No modifications in persistence - no SAGA found. Nothing happened, which is okay. This folk is just an unlucky one. No bitcoins.</p>
+<p>If it crashes between 6 and 7, then it would restore the SAGA and proceed to step 7 execution.</p>
+<p>If it crashes between 7 and 8 - it would find started SAGA and try to send money once again (step 7), but the payment system would detect duplicate of the transfer request because we would use the same command ID. So we would not send the BTCs second time and will proceed to step 8.</p>
+<p>Now, the second instance is into play. No two instances would be able to commit concurrent transactions because both transactions modified the same field - the amount of BTC left in the bucket. One of them would fail on step 6 and would have to restart from step 1, and it will keep restarting until the amount of money would reach 0 or transaction commit would be successful. We ensured "exactly 100 per division spent."</p>
+<p>So. Success?</p>
+<p>In general, - yes, but not in our fictional case. What makes this case special? It's a high contention problem. Many instances try to modify a single state concurrently, and with a high rate, so many requests would stumble at point 6 and would have to retry. These transaction retries would lead to enormous system resources waste and could even DDoS the entire system.</p>
+<p>But most of the real-life problems are not of "high contention," so this approach would work.</p>
+<p>"High contention" is not to be confused with "high load." For example, we are building a prevalent payment system for some virtual currency with billions of clients. They are making transactions from one account to another, which results in thousands of requests executed simultaneously, but they would not compete for concurrent modification of the same data. That's the "high load," not "high contention." Optimistic locking works well with a high load since there would be almost no retries due to concurrent modifications of the same data.</p>
+<p>The "transactions" approach almost worked for us but didn't. What did we learn from it? It does not make sense to execute requests to withdraw BTC from a single bucket in parallel. Since our problem is of high contention, we gain nothing from this parallelization and, in fact, even lose performance. But how do we ensure sequential execution of commands with many instances and random instances receiving commands? With pessimistic locking or with sharding.</p>
+<h3>Pesimistick locking</h3>
+<p>Optimistic locking - "oh, I'm sure I'll not collide with anyone, so let's proceed with the modification and rollback in the end in case of collision."
+Pessimistic locking - "well, I'm sure I'll collide with concurrent modification, so let's first lock the resource, modify and then release the lock."</p>
+<p>Again, we can use Zookeeper, but now not for holding the amount of BTC left in a bucket, but for holding pessimistic locks on the bucket.</p>
+<p>Here is a flow of a single instance first:</p>
+<ol>
+<li>Lock bucket.</li>
+<li>Start transaction.</li>
+<li>Validate BTC left. If more than 0 - proceed, if less - roll back the transaction, release the lock, and stop processing.</li>
+<li>Generate command id for a command to the payment system.</li>
+<li>Persist initial SAGA state with the generated command id.</li>
+<li>Persist the new amount of money.</li>
+<li>Commit transaction. If the commit fails - release the lock and start over.</li>
+<li>Send money using the generated command id.</li>
+<li>Persist the final state of SAGA, marking it complete.</li>
+<li>Release lock.</li>
+</ol>
+<p>You may ask a question: why do we need the transaction? Strictly speaking, we do not need it - we need steps 4 and 5 to be atomic, transactions are just one of the ways to ensure it.</p>
+<p>The behavior of the second instance is dead simple. If at step 1, it can't lock the bucket - it just waits until it can and then proceed.</p>
+<p>The problem of high contention solved, here is the cost:</p>
+<ol>
+<li>There is an overhead on constant locking/unlocking of buckets.</li>
+<li>Costly instances would either wait for the lock to acquire and do nothing. Since command distribution is random, we may be unlucky and have most instances receiving requests for the same bucket, reducing the system's throughput.</li>
+<li>Instead of waiting for the lock, we may stash commands for a locked bucket and proceed with the next command processing. We shift "retry" logic from a database to command processing, which is, in general, more optimal, but still not good enough.</li>
+<li>If an instance crashes while holding a lock, a particular logic must be applied to let another instance forcefully reacquire the lock and continue the created SAGA execution. We have to make sure the "crashed" instance is crashed and not just lost network connectivity to Zookeeper. I do not know an easy automated way of doing it.</li>
+</ol>
+<p>Success?</p>
+<p>Not really. May worth using in some cases, but I'd say these should be business cases. For example, if you are making a plane tickets shop. The start of the booking process of a single ticket would create a pessimistic lock on the ticket, so nobody would be able to reserve it while filling your passport details and specify the amount of baggage. I'd not use pessimistic locking for dealing with "high-contention" engineering problems.</p>
+<h3>Sharding</h3>
+<p>So, let's analyze another way of ensuring linear command processing per bucket but without pessimistic locking.</p>
+<p>We can do it with any persistence combined with command sharding.</p>
+<p>We have 100 buckets. Let's launch, say, 50 instances of our service. Instance 1 would be responsible for processing requests in buckets 1 and 51, instance 2 for buckets 2 and 52, and so on.</p>
+<p>Each instance knows this distribution. So, if an instance receives a request for a bucket it's not "assigned" to - it forwards the received request to an assigned instance. We just reduced the problem to "sequential processing inside one instance," which is trivial.</p>
+<ol>
+<li>Instance one receive request</li>
+<li>Instance two receive request</li>
+<li>Instance one forwards request to instance 3 assigned to the bucket.</li>
+<li>Instance two forwards request to instance 3 assigned to the bucket.</li>
+<li>Instance three validate money executing first request.</li>
+<li>Instance three update persistence and send btc executing the first request.</li>
+<li>Instance three validate money executing second request and stops its execution since no money left.</li>
+</ol>
+<p>Success?</p>
+<p>Yes!</p>
+<p>Have we found a silver bullet?</p>
+<p>No.</p>
+<p>This approach is the most complex if we think beyond this trivial and fictional case study (Elon would never give away his BTCs, obviously).
+In real-life instances are dynamic - they go up and down all the time at least because we redeploy them. A responsibility to process commands for bucket X should migrate between instances. Here are problems we would have to resolve:</p>
+<ol>
+<li>An instance is going down because it's crashed. There should be a supervisor to detect it and spawn a new instance.</li>
+<li>All the instances would have to update their tables of "where do we forward requests to bucket X?"</li>
+<li>An instance may not crash but just would lose connectivity with the supervisor, but from the supervisor's point of view, it crashed so that it would spawn a new instance responsible for the same bucket. Your router/load balancer still may be aware of the old instance and forward request to it, thus we would have a rogue instance executing requests for bucket X and another instance acknowledged by the supervisor. This situation violates all the logic of processing, and it's called "split-brain."</li>
+</ol>
+<p>There are frameworks mitigating this problem (check Akka's "Split Brain Resolver," for example), but it's the most sophisticated solution. I'd go for it only in extremely "high-contention" problems.</p>
+<h3>Optimistic locking combined with sharding without guaranties</h3>
+<p>We use any database with ACID transactions on persistence level as we did in the "optimistic locking" option. To mitigate the "too many transaction retries" problem, we roughly split traffic by instances ensuring the vast majority of commands for a bucket landing the same instance. We do not need strict guarantees since there are optimistic locks to protect us from "split-brain".</p>
+<p>We can distribute commands by instances with a smart load balancer capable of analyzing commands or using any message bus with queue partitioning, like Kafka.</p>
+<p>In a stable state, an instance would receive all the commands for a shard. In case of redeployment/crash during a short period of time, there is a chance of having several instances executing commands for the same bucket, but this would not cause problems with data consistency due to optimistic locks but would lead to temporary degradation in command handling because of a spike of transaction restarts.</p>
+<h2>Afterwords</h2>
+<p>What should you choose? Evaluate all the options and analyze the consequences.</p>
+<p>My heuristic: "go with optimistic locking by default and cheat with "sharding without guarantees + optimistic locking" if there is a "high-contention." Use true sharding only if degradation in processing during redeployments is not acceptable. Avoid pessimistic locking."</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'yurysukhoverkhov'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "en";
+
+                        this.page.identifier = '2020-06-16-todo-horizontal-scaling-of-microservices-data-consistency-concerns-or-a-definitive-guide-of-how-to-not-split-ones-brain';
+                        this.page.url = 'https://ysukhoverkhov.github.io/drafts/todo-horizontal-scaling-of-microservices-data-consistency-concerns-or-a-definitive-guide-of-how-to-not-split-ones-brain.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://www.linkedin.com/in/ysukhoverkhov/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://github.com/ysukhoverkhov/"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container-fluid">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Yury Sukhoverkhov
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://ysukhoverkhov.github.io/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://ysukhoverkhov.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://ysukhoverkhov.github.io/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'yurysukhoverkhov'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+
+
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Publishing events in distributed applications. Responsibilities of publishers - yurySukhoverkhov</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://ysukhoverkhov.github.io/publishing-events-in-distributed-applications-responsibilities-of-publishers.html">
+
+        <meta name="author" content="Yury Sukhoverkhov" />
+        <meta name="keywords" content="distributed applications,event streaming,event-sourcing,CDC,PostgreSQL,MySQL" />
+        <meta name="description" content="Exposing state via &#34;state change&#34; events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our responsibilities as event publishers." />
+
+        <meta property="og:site_name" content="yurySukhoverkhov" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Publishing events in distributed applications. Responsibilities of publishers"/>
+        <meta property="og:url" content="https://ysukhoverkhov.github.io/publishing-events-in-distributed-applications-responsibilities-of-publishers.html"/>
+        <meta property="og:description" content="Exposing state via &#34;state change&#34; events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our responsibilities as event publishers."/>
+        <meta property="article:published_time" content="2020-04-30" />
+            <meta property="article:section" content="Distributed and rock-solid" />
+            <meta property="article:tag" content="distributed applications" />
+            <meta property="article:tag" content="event streaming" />
+            <meta property="article:tag" content="event-sourcing" />
+            <meta property="article:tag" content="CDC" />
+            <meta property="article:tag" content="PostgreSQL" />
+            <meta property="article:tag" content="MySQL" />
+            <meta property="article:author" content="Yury Sukhoverkhov" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://ysukhoverkhov.github.io/theme/css/bootstrap.flatly.min.css" type="text/css"/>
+    <link href="https://ysukhoverkhov.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://ysukhoverkhov.github.io/theme/css/pygments/emacs.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://ysukhoverkhov.github.io/theme/css/style.css" type="text/css"/>
+        <link href="https://ysukhoverkhov.github.io/static/custom.css" rel="stylesheet">
+
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://ysukhoverkhov.github.io/" class="navbar-brand">
+yurySukhoverkhov            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                        <li class="active">
+                            <a href="https://ysukhoverkhov.github.io/category/distributed-and-rock-solid.html">Distributed and rock-solid</a>
+                        </li>
+                        <li >
+                            <a href="https://ysukhoverkhov.github.io/category/subjective.html">Subjective</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://ysukhoverkhov.github.io/publishing-events-in-distributed-applications-responsibilities-of-publishers.html"
+                       rel="bookmark"
+                       title="Permalink to Publishing events in distributed applications. Responsibilities of publishers">
+                        Publishing events in distributed applications. Responsibilities of publishers
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2020-04-30T00:00:00+02:00"> Thu 30 April 2020</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://ysukhoverkhov.github.io/tag/distributed-applications.html">distributed applications</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/event-streaming.html">event streaming</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/event-sourcing.html">event-sourcing</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/cdc.html">CDC</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/postgresql.html">PostgreSQL</a>
+        /
+	<a href="https://ysukhoverkhov.github.io/tag/mysql.html">MySQL</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Exposing state via "state change" events is a well known and well-used pattern in modern distributed applications. We all have reasons to use it in our systems. Scope of the article - discuss our responsibilities as event publishers.</p>
+<h2>Recap</h2>
+<p>Let's quickly remind ourselves about event-streaming, event-sourcing, and why we care.</p>
+<h3>What is event-sourcing?</h3>
+<p>EventSourcing (ES) is when your "Source of Truth" (SoT) is not a snapshot of a current state but a series of events, describing state transitions.</p>
+<p>ES is not when:</p>
+<ol>
+<li>You stream your SoT events.</li>
+<li>You apply the CQRS pattern.</li>
+</ol>
+<p>So, if persistence level stores state as a series of events describing the past - that's event-sourcing. Event streaming and CQRS usually come together with event-sourcing, but have nothing to do with it per se and <em>are possible without event-sourcing</em>.</p>
+<h3>Which events we publish?</h3>
+<p>We publish any events that make sense for downstream services. Published events do not have to be SoT events. That's why we could publish events without our persistence level being event-sourced.</p>
+<h2>Responsibilities of publishers</h2>
+<p>To provide downstream services consistent view on a state, publishers have to fulfill these responsibilities:</p>
+<ol>
+<li><strong>No deviation from SoT</strong>. Published Events must all the time be consistent with SoT state.</li>
+<li><strong>Guarantee of publication</strong>. Once entity state is changed - respective event <em>must</em> be eventually published,</li>
+<li><strong>No publication until the new state persisted</strong>. Nobody should see events before corresponding state modification is persisted. <em>If it's not persisted, then it's not happened yet.</em></li>
+</ol>
+<p>Bonus - what are not responsibilities of publishers:</p>
+<ol>
+<li>Providing downstream services historical events - it's up to readers to persist your events and go back in time if they need/want to.</li>
+<li>Providing downstream services projections of events aggregation - it's up to readers to build and maintain their projections/read models.</li>
+</ol>
+<h2>No deviation from SoT</h2>
+<h3>Problem</h3>
+<p>It should always be possible to reconstruct state from events we publish, and this reconstructed state must not conflict with SoT.</p>
+<p>Of course, downstream services may fail while building their view of state from the events, but nevertheless, we must ensure we are not messing up on our publishing side.</p>
+<h3>Solutions</h3>
+<p>Make your state event-sourced and <em>publish SoT events</em>. In this case, your published events would be consistent with state by definition - they are the state.</p>
+<p>Or, <em>Publish the entire state on every modification</em>. That's easy, so we assume we have to stream events due to reasons (say, our state is "big") and continue our discussion ignoring this option.</p>
+<p>If you do not want or can't expose your SoT - stick in a stateless transformer between downstream services and your publisher. That adds risk of not fulfilling this responsibilities due to additional moving parts, but there are situations when it's necessary.</p>
+<h2>Guarantee of publication</h2>
+<h3>Problem</h3>
+<p>Once a state of an entity changes and this change is persisted in your SoT database, the corresponding event has to be eventually published. If you can't guarantee this then you corrupt state of downstream services, so:</p>
+<ol>
+<li>"At most once" guarantee on event publication is not enough. Theoretically this is possible, but implies many complications for missing events corrections, and is not worth to be considered as an option.</li>
+<li>"At least once" guarantee is enough. It's not hard for downstream to filter out duplicates if you attach unique sequence numbers to events.</li>
+<li>"Exactly once" possible, but it costs a lot. Rarely makes sense in practice.</li>
+</ol>
+<h3>Solutions</h3>
+<h4>Databases "for event-sourcing"</h4>
+<p>There are databases "designed for event-sourcing."</p>
+<p>These databases are optimized for persisting state as a series of read-only events, and they have built-in capability to publish events after persisting.</p>
+<p>A side note. These DBs may come with reach functionality for building projections, recovering historical events etc. Thus it's tempting to let your downstream services read from it directly. But, if this DB is used to persist SoT events, then this is your operational DB. Fulfillment of your service SLAs depends on this DB. So generally, it's a bad idea to have this DB public and let your downstream services read directly. We keep our <em>operational</em> relational DBs private, why should we make <em>operational</em> Event Stores public?</p>
+<p>Examples - <a href="eventstore.com">EventStore</a>, or <a href="https://axoniq.io/product-overview/axon-server">Axon Server</a>.</p>
+<h4>Change Data Capture (CDC) in Databases</h4>
+<p>CDC is when we capture changes in our data and then do something with these changes, say, publish as events. Example of homemade CDC - triggers in RDBMS.</p>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">store_changes</span> <span class="k">AFTER</span> <span class="k">UPDATE</span><span class="p">,</span> <span class="k">INSERT</span><span class="p">,</span> <span class="k">DELETE</span> <span class="k">ON</span> <span class="n">source_table</span>
+<span class="k">FOR</span> <span class="k">EACH</span> <span class="k">ROW</span> <span class="k">EXECUTE</span> <span class="k">PROCEDURE</span> <span class="n">store_change</span><span class="p">();</span>
+</code></pre></div>
+
+
+<p>And then you try to do something useful in this <code>store_change().</code></p>
+<p>Most modern DBMSes have built-in CDC, and they usually publish a projection of a commit log.</p>
+<p>Commit log is a log of all the changes made. It is typically used for data recovery by replaying them to get back to a desired state by replaying Commit Log transactions.</p>
+<p><em>The Commit Log is the actual source of truth about the state of a DB instance. You can think of the tables as a queryable projection of the log.</em></p>
+<p>Commit log streaming makes sense in databases with Master-Slave orchestration. For example, a Cassandra cluster of three instances would not have a master node; there could be conflicting states on different nodes, but CDC would publish corresponding events before Cassandra resolves the conflict. To mitigate it, we can publish from all three instances and build our conflict resolver, but we do not want to.</p>
+<p>On the other hand, MySQL or PostgreSQL are DBMSes that suit us well - they have Master-Slave cluster architecture, thus streaming of commit log from Master node is a streaming of SoT modification events per se.</p>
+<p>Commit log in PostgreSQL is called <a href="https://www.postgresql.org/docs/current/wal-intro.html">Write-Ahead log</a></p>
+<p>MySQL calls Commit log a <a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-redo-log.html">REDO log</a>, but CDC is from <a href="https://dev.mysql.com/doc/refman/8.0/en/binary-log.html">binary log</a>, which is created after modifications in table state. Still, it looks like it works.</p>
+<h4>Message bus as persistence</h4>
+<p>There are durable message buses. For exampl, Kafka may retain messages for days. If we treat a message bus as SoT storage, then persisting and publishing of an event are strictly consistent and atomic, which is even more than we need! But Kafka does not provide selective reading of data, so it's practically useless as an operational SoT storage.</p>
+<p>In practice, there is a hybrid approach - we back up a message bus with a6 DB for caching and read optimization. The flow would be:</p>
+<ol>
+<li>Events are published to a message bus,</li>
+<li>Events are read from the message bus and persisted in a DB by a utility app,</li>
+<li>Service for which this data is the operational data, recovers from DB and read up tail (head?) from the message bus,</li>
+<li>Consumers read only from the message bus.</li>
+</ol>
+<p>That's complex, but if you have a strict SLA on data publication after persistence, that could be a way to go.</p>
+<p>Check <a href="https://github.com/evolution-gaming/kafka-journal">kafka-journal</a> for inspiration.</p>
+<h4>Application level</h4>
+<p>We constrained only by our imagination. For example, you can add "event published" flag to the metadata of each event in your SoT database and:</p>
+<ol>
+<li>initially persist event with the flag set to "false,"</li>
+<li>publish your event in a message bus,</li>
+<li>set the flag to "true,"</li>
+<li>on each crash/outage recovery scan the SoT DB and go through steps 2 and 3 for all events with the flag equal to "false."</li>
+</ol>
+<h2>No publication until new state persisted</h2>
+<h3>Problem</h3>
+<p>Until modification of state has persisted - this modification did not happen. If you crash split second before persisting a new state and recovers - you would not know anything about the state you were about to persist. Your downstream services must know nothing about it as well; otherwise, they would have a corrupted view on actual state.</p>
+<h3>Solution</h3>
+<p>If you publish on the Persistence level with one of the approaches above, this responsibilities is fulfilled for free.</p>
+<p>If you publish on an application level, then just remember to publish events after you received confirmation from your persistence level. Discipline and/or shared utility libraries help.</p>
+<h2>Feet wet, hands dirty</h2>
+<p>Let's set up an RDBMS as SoT Event Store and leverage its commit log streaming to publish all SoT events to Kafka.</p>
+<h3>Debezium</h3>
+<p><a href="https://debezium.io/">Debezium</a> is an open-source distributed platform for change data capture. Start it up, point it at your databases, and your apps can start responding to all of the inserts, updates, and deletes that other apps commit to your databases. Debezium is durable and fast, so your apps can respond quickly and never miss an event, even when things go wrong. As they say.</p>
+<p>Debezium is built on top of Apache Kafka and provides Kafka Connect compatible connectors that monitor specific database management systems. There are Production connectors for MySQL, PostgreSQL, MongoDB.</p>
+<p>The project provides a tutorial for setting up CDC of MySQL and streaming the events to Kafka. They provide Docker images with all moving parts preconfigured. <a href="https://debezium.io/documentation/reference/1.1/tutorial.html">Try it out</a></p>
+<h2>Conclusion</h2>
+<p>With great power of distributed systems and messaging Architectures comes great responsibility. Be responsible. Take care of your downstream fellows.</p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'yurysukhoverkhov'; // required: replace example with your forum shortname
+
+            var disqus_config = function () {
+                this.language = "en";
+
+                        this.page.identifier = '2020-04-30-publishing-events-in-distributed-applications-responsibilities-of-publishers';
+                        this.page.url = 'https://ysukhoverkhov.github.io/publishing-events-in-distributed-applications-responsibilities-of-publishers.html';
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="https://www.linkedin.com/in/ysukhoverkhov/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://github.com/ysukhoverkhov/"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container-fluid">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Yury Sukhoverkhov
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://ysukhoverkhov.github.io/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://ysukhoverkhov.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://ysukhoverkhov.github.io/theme/js/respond.min.js"></script>
+
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'yurysukhoverkhov'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+
+
+</body>
+</html>
