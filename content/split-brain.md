@@ -180,11 +180,11 @@ There are frameworks mitigating this problem (check Akka's "Split Brain Resolver
 
 ### Optimistic locking combined with sharding without guaranties
 
-That's what it is. We use any database with ACID transactions on persistence level as we did in the "optimistic locking" option. To mitigate the "too many transaction retries" problem, we roughly split traffic by instances ensuring the vast majority of commands for a bucket landing the same instance. We do not need strict guarantees since there are transactions to protect us from "split-brain".
+We use any database with ACID transactions on persistence level as we did in the "optimistic locking" option. To mitigate the "too many transaction retries" problem, we roughly split traffic by instances ensuring the vast majority of commands for a bucket landing the same instance. We do not need strict guarantees since there are optimistic locks to protect us from "split-brain".
 
 We can distribute commands by instances with a smart load balancer capable of analyzing commands or using any message bus with queue partitioning, like Kafka.
 
-In a stable state, the same instance would receive all the commands for a shard. In case of redeployment/crash during a short period of time, there is a chance of having several instances executing commands for the same bucket, but this would not cause problems with data consistency due to optimistic locks but would lead to temporary degradation in command handling because of a spike of transaction restarts.
+In a stable state, an instance would receive all the commands for a shard. In case of redeployment/crash during a short period of time, there is a chance of having several instances executing commands for the same bucket, but this would not cause problems with data consistency due to optimistic locks but would lead to temporary degradation in command handling because of a spike of transaction restarts.
 
 
 ## Afterwords
