@@ -60,6 +60,9 @@ yurySukhoverkhov            </a>
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
+                        <li >
+                            <a href="https://ysukhoverkhov.github.io/category/design.html">Design</a>
+                        </li>
                         <li class="active">
                             <a href="https://ysukhoverkhov.github.io/category/distributed-and-rock-solid.html">Distributed and rock-solid</a>
                         </li>
@@ -124,75 +127,141 @@ yurySukhoverkhov            </a>
                 </div>
                 <p>TODO: add link to related article about guaranties in command and event processing.
 TODO: Copy-paste summary after syntax checks</p>
-<h2>(Fictional) case study</h2>
-<p>We are Elon Musk, and, as usual, we want to give away 10000 bitcoins. We split the prize among folks who resolve a "2+2*2" problem and submit a solution via a simple Web interface. Here are the rules:</p>
+<h2>A fictional case study</h2>
+<p>Lets say we are Elon Musk, and, as usual, we want to give away 10000 bitcoins. We split the prize among folks who can solve the "2+2*2" problem and submit a solution via a simple web interface. Here are the rules:</p>
 <ol>
-<li>Everybody is split into "divisions by age." There are 100 divisions (for example, the first division is 0-1 years old, second 1-2, etc.).</li>
-<li>Each division would splint 100 bitcoins among participants.</li>
+<li>The participants are grouped into "divisions by age." There are 100 divisions (for example, the first division is 0-1 years old, second 1-2, etc.).</li>
+<li>Each division would split 100 bitcoins among participants.</li>
 <li>The first 10000 winners in each division get 0.01 bitcoin.</li>
-<li>We must give away precisely 100 BTC per division - even a 0.01 error in any direction would hit our имидж.</li>
+<li>We must give away precisely 100 BTC per division - even a 0.01 error is a dent to our Elon Musk brand.</li>
 </ol>
-<p>We anticipate billions of participants, all of them trying to submit a solution at the same time. We like fair competitions, so there would be enough backend resources to process all the requests. So we rented 1000 machines.</p>
+<p>We anticipate billions of participants, all of them trying to submit a solution at the same time. We like a fair competition, so there would be enough backend resources to process all the requests. So we rented 1000 machines.</p>
 <h3>Solution architecture</h3>
+<!---
+TODO:
+Shall we describe the architecture a bit too: E.g:
+Our architecture consists of 1000 machines of same hardware, running only one instance of the backend service per machine. A loadbalancer distributes the requests to these machines in a round robin (does it matter to describe the distribution algo)
+-->
+
 <p>TODO: a diagram with FE and many instances of BE.</p>
-<h3>Solution complexities</h3>
-<p>The main complexity is to give away exactly the 100 BTC per division due to concurrent result evaluation. This problem boils down to "0.01 BTC left, and there are two competitors submitting results".</p>
-<h2>Possible solutions evaluation</h2>
-<h3>Just a shared variable somewhere</h3>
+<h3>Crux of the problem</h3>
+<p>The invariant is to give away precisely 100 BTC per division. But we have to do it <em>correctly</em> in a concurrent environment. This problem boils down to "0.01 BTC are left, and there are two competitors submitting results".</p>
+<h2>A survey of possible solutions</h2>
+<h3>A shared multable variable</h3>
+<!---
+TODO:
+Points to clarify:
+- Shall we be more explicit about "anything"?: variable in some "database/cache", stating we demand no special feature from the database.
+- What are we storing in that field?: total balance? balance per division?
+-->
+
 <p>Implementation could be anything — for example, a field in a relational database.</p>
+<p>Consider a simplified scenario. Two users submit a correct solution simultaneously. The submission is processed by two different machines. Consider this (of the many possible) order of evaluation:</p>
 <ol>
-<li>Instance one receive request</li>
-<li>Instance two receive request</li>
-<li>Instance one validate money</li>
-<li>Instance two validate money</li>
-<li>Instance one update persistence</li>
-<li>Instance two update persistence</li>
-<li>Instance one sends btc.</li>
-<li>Instance two sends btc.</li>
+<li>Instance one receives the request</li>
+<li>Instance two receives the request</li>
+<li>Instance one verifies that there is sufficient balance</li>
+<li>Instance two verifies that there is sufficient balance</li>
+<li>Instance one updates persistence with new balance</li>
+<li>Instance two updates persistence with new balance</li>
+<li>Instance one sends 0.01 BTC.</li>
+<li>Instance two sends 0.01 BTC.</li>
 </ol>
-<p>You see, this will not work. No Success. Let's try something more sophisticated.</p>
+<p>This is the classic race condition. Let's try something more sophisticated.</p>
 <h3>A persistence with "compare and set" semantics</h3>
-<p>The persistence implementation could be a zookeeper.</p>
+<!--
+TODO: Add a footnote for definition of compare and set
+-->
+
+<p>We are still keeping balance per division in a shared database in this solution, but now we require "compare and set" semantic. Many databases can provide it - Mongo, Postgres, Dynamo, Cassandra, Zookeeper, to name a few. For this particular task, Zookeeper looks like the default choice.</p>
 <ol>
-<li>Instance one receive request</li>
-<li>Instance two receive request</li>
-<li>Instance one validate money</li>
-<li>Instance two validate money</li>
-<li>Instance one update persistence and send btc</li>
-<li>Instance two tries to update persistence, but since value already changed by instance one - the change would be rejected. Instance two would read value from persistence to try again, will see new amount of money is equal to 0 and will not do anything.</li>
-<li>Instance one sends btc.</li>
+<li>Instance one receives the request</li>
+<li>Instance two receives the request</li>
+<li>Instance one verifies that there is sufficient balance</li>
+<li>Instance two verifies that there is sufficient balance</li>
+<li>Instance one updates persistence with new balance</li>
+<li>Instance two tries to update persistence with new balance, but since the value was already changed by instance one - the change would be rejected. Instance two would read value from persistence to try again, will see new amount of money is equal to 0 and will not do anything.</li>
+<li>Instance one sends BTC.</li>
 </ol>
+<!--
+TODO:
+- Should we explicity mention the retrying logic on step 6 as a step in the algorithm?
+I think I'd expand step 6 in many. What you think?
+-->
+
 <p>Success?!</p>
 <p>No.</p>
-<p>Instance one may crash after step 5, so we would reduce the amount of money left without actually sending them, which violates constrain "Distribute exactly 10000 BTC". What if we change the order of actions and send BTC before updating persistence? The problem still the same - we send BTC, but crash before we have a chance to update the amount of money left, so we would spend more than 10000.</p>
-<p>To satisfy "distribute exactly 10000," updating persistence and transferring BTC must be an "atomic" operation.</p>
+<p>Instance one may crash after step 5, so we would reduce the balance without actually sending any BTC, which violates the constraint "distribute exactly 10000 BTC".</p>
+<p>What if we change the order of actions and send BTC before updating the balance? But then we can run into a different problem: we send out BTC, but crash before we have a chance to update the balance, so we would spend more than 10000.</p>
+<!--
+TODO:
+- Shall we also state that the BTC wallet has more than 10000 BTC, so that it is "actually" possible to send out more than 10000 BTC
+-->
+
+<p>Therefore to satisfy "distribute exactly 10000," updating persistence and transferring BTC must be an "atomic" operation.</p>
 <p>How do we do it?</p>
 <h3>Optimistic locking</h3>
 <p>Let's use any database with ACID transactions. And this is complex because we need to elaborate SAGAs and Idempotency before we proceed (but such intensive preparations giving you a hint - this time it's a success).</p>
 <p>TODO: give a link to SAGA article.
-TODO: give a link to the idempotency article.</p>
-<p>We can achieve atomicity if our payment system idempotent on processing commands for BTC transfers. We also would have to add dedicated storage for persisting SAGA state for each request.</p>
+TODO: give a link to the idempotency article.
+&lt;!--
+TODO:
+Or alternatively, we can add footnotes for:
+  - Saga
+  - idempotency
+  - optimistic locking
+and provide links to those articles.</p>
+<p>Also, what are we persisting, total balance, balance per subdivision? What exactly would saga state contain?</p>
+<p>In all the cases we persist balance per division. SAGA would be for single transaction. Think of SAGA in this case as of aggregate started when we receive a request and ended when we sent btc.</p>
+<p>We should explain it in the text directly.
+--&gt;</p>
+<p>We can achieve atomicity if our payment system is idempotent while processing commands for BTC transfers. We also would have to add dedicated storage for persisting SAGA state for each request.</p>
+<!--
+TODO: shall we introduce the payment system and it's behaviour: (idempotency + command id) at the top of the article? Though irrelevant for the first two solutions, I think "pre-conditions" should be introduced at the beginning.
+
+@ysukhoverkhov 20 days ago
+I agree.
+
+
+@ysukhoverkhov ysukhoverkhov 18 days ago
+Let's describe payment provider in the beginning, but specify the section as optional. And here refer back to the description of the provider.
+-->
+
 <p>Since the scenario is complex, let's separately walk through all the steps performed by a single service and then add second into play.</p>
+<p>By "transaction" bellow we assume ACID transaction in a Dabatase.</p>
 <ol>
-<li>Start transaction.</li>
-<li>Validate BTC left. If more than 0 - proceed, if less - rollback transaction and stop processing.</li>
-<li>Generate command id for a command to the payment system.</li>
-<li>Persist initial SAGA state with the generated command id.</li>
-<li>Persist the new amount of money.</li>
-<li>Commit transaction. If the commit fails (because another instance executed a concurrent transaction with a modified amount of money) goes to step 1.</li>
+<li>Start a transaction.</li>
+<li>Verify the balance: if more than 0 - proceed, if less - rollback transaction and stop processing.</li>
+<li>Generate a command id for a command to the payment system.</li>
+<li>Persist the initial SAGA state with the generated command id.</li>
+<li>Persist the updated balance.</li>
+<li>Commit transaction. If the commit fails (because another instance executed a concurrent transaction with a modified balance) go to step 1.</li>
 <li>Send money using the generated command id.</li>
 <li>Persist the final state of SAGA, marking it complete.</li>
 </ol>
+<!--
+TODO:
+- I like this separation of steps performed by one instance before bringing the second one in the picture. Shall we do it for the first two solutions too? It maybe an overkill for the first solution, in second solution there is a retry (step 6), so I think it would be worth considering because of that.
+-->
+
 <p>If our service crashes, it reads the state of all unfinished SAGAs and continues their execution.</p>
-<p>If it crashes at any point between steps 1 and 6 - the transaction would be rolled back, and it would as if we never received the command. No modifications in persistence - no SAGA found. Nothing happened, which is okay. This folk is just an unlucky one. No bitcoins.</p>
+<p>If it crashes at any point between steps 1 and 6 - the transaction would be rolled back, and it would be as if we never received the command. No modifications in persistence - no SAGA found. Nothing happened, which is okay. This folk is just an unlucky one. No bitcoins.</p>
 <p>If it crashes between 6 and 7, then it would restore the SAGA and proceed to step 7 execution.</p>
 <p>If it crashes between 7 and 8 - it would find started SAGA and try to send money once again (step 7), but the payment system would detect duplicate of the transfer request because we would use the same command ID. So we would not send the BTCs second time and will proceed to step 8.</p>
-<p>Now, the second instance is into play. No two instances would be able to commit concurrent transactions because both transactions modified the same field - the amount of BTC left in the bucket. One of them would fail on step 6 and would have to restart from step 1, and it will keep restarting until the amount of money would reach 0 or transaction commit would be successful. We ensured "exactly 100 per division spent."</p>
+<!--
+The above three paras are very much a part of the algorithm or are they really saga's standard behaviour? Lets discuss this and either leave them be as paras or also describe it as service's algo.
+
+Let's explicitly say the 1..8 everywhere is for "happy path" and then have a subsections for "problems"/"recoveries".
+-->
+
+<p>Now, the second instance is into play. No two instances would be able to commit concurrent transactions because both transactions modify the same field - the balance left in the bucket. One of them would fail on step 6 and would have to restart from step 1, and it will keep restarting until either the balance would reach 0 or the transaction commit would be successful. We ensured "exactly 100 BTC per division spent."</p>
 <p>So. Success?</p>
-<p>In general, - yes, but not in our fictional case. What makes this case special? It's a high contention problem. Many instances try to modify a single state concurrently, and with a high rate, so many requests would stumble at point 6 and would have to retry. These transaction retries would lead to enormous system resources waste and could even DDoS the entire system.</p>
+<p>In general, yes, but not in our fictional case. What makes this case special? It's a high contention problem. Many instances try to modify a single state concurrently, and with a high rate, so many requests would stumble at point 6 and would have to retry. These transaction retries would lead to enormous system resources waste and could even DDoS the entire system.</p>
 <p>But most of the real-life problems are not of "high contention," so this approach would work.</p>
-<p>"High contention" is not to be confused with "high load." For example, we are building a prevalent payment system for some virtual currency with billions of clients. They are making transactions from one account to another, which results in thousands of requests executed simultaneously, but they would not compete for concurrent modification of the same data. That's the "high load," not "high contention." Optimistic locking works well with a high load since there would be almost no retries due to concurrent modifications of the same data.</p>
-<p>The "transactions" approach almost worked for us but didn't. What did we learn from it? It does not make sense to execute requests to withdraw BTC from a single bucket in parallel. Since our problem is of high contention, we gain nothing from this parallelization and, in fact, even lose performance. But how do we ensure sequential execution of commands with many instances and random instances receiving commands? With pessimistic locking or with sharding.</p>
+<p>"High contention" is not to be confused with "high load." For example, we are building a prevalent payment system for some virtual currency with billions of clients. They are making transactions from one account to another, which results in thousands of requests executed simultaneously, but they would not compete for concurrent modification of the same data. That's "high load", not "high contention". Optimistic locking works well with in high load (but not high contention) scenarios, since there would be almost no retries due to concurrent modifications of the same data.</p>
+<p>The "transactions" approach almost worked for us but not sufficiently. What did we learn from it? It does not make sense to execute requests to withdraw BTC from a single bucket in parallel. Since our problem is of high contention, we gain nothing from this parallelization and, in fact, even lose performance. But how do we ensure sequential execution of commands with many instances and random instances receiving commands? With pessimistic locking or with sharding.</p>
+<!-- reviewed till here -->
+
 <h3>Pesimistick locking</h3>
 <p>Optimistic locking - "oh, I'm sure I'll not collide with anyone, so let's proceed with the modification and rollback in the end in case of collision."
 Pessimistic locking - "well, I'm sure I'll collide with concurrent modification, so let's first lock the resource, modify and then release the lock."</p>
@@ -232,7 +301,7 @@ Pessimistic locking - "well, I'm sure I'll collide with concurrent modification,
 <li>Instance one forwards request to instance 3 assigned to the bucket.</li>
 <li>Instance two forwards request to instance 3 assigned to the bucket.</li>
 <li>Instance three validate money executing first request.</li>
-<li>Instance three update persistence and send btc executing the first request.</li>
+<li>Instance three update persistence and send BTC executing the first request.</li>
 <li>Instance three validate money executing second request and stops its execution since no money left.</li>
 </ol>
 <p>Success?</p>
